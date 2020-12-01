@@ -1,8 +1,8 @@
 file(REMOVE_RECURSE
+  "../bin/MashGraph.exe"
+  "../bin/MashGraph.exe.manifest"
+  "../bin/MashGraph.pdb"
   "CMakeFiles/MashGraph.dir/main.cpp.obj"
-  "MashGraph.exe"
-  "MashGraph.exe.manifest"
-  "MashGraph.pdb"
   "libMashGraph.dll.a"
 )
 

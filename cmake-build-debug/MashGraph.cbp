@@ -17,13 +17,14 @@
 					<DistClean command="C:/MinGW/bin/mingw32-make.exe -f &quot;C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="MashGraph">
-				<Option output="C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug/MashGraph.exe" prefix_auto="0" extension_auto="0"/>
+			<Target title="main.cpp">
+				<Option output="C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug/main.cpp.exe" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add directory="C:/Users/Arseniy/CLionProjects/MashGraph/libs/include"/>
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/6.3.0/include/c++"/>
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/6.3.0/include/c++/mingw32"/>
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/6.3.0/include/c++/backward"/>
@@ -33,19 +34,20 @@
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/6.3.0/../../../../mingw32/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="C:/MinGW/bin/mingw32-make.exe -f &quot;C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug/Makefile&quot;  VERBOSE=1 MashGraph"/>
+					<Build command="C:/MinGW/bin/mingw32-make.exe -f &quot;C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug/Makefile&quot;  VERBOSE=1 main.cpp"/>
 					<CompileFile command="C:/MinGW/bin/mingw32-make.exe -f &quot;C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
 					<Clean command="C:/MinGW/bin/mingw32-make.exe -f &quot;C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 					<DistClean command="C:/MinGW/bin/mingw32-make.exe -f &quot;C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="MashGraph/fast">
-				<Option output="C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug/MashGraph.exe" prefix_auto="0" extension_auto="0"/>
+			<Target title="main.cpp/fast">
+				<Option output="C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug/main.cpp.exe" prefix_auto="0" extension_auto="0"/>
 				<Option working_dir="C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug"/>
 				<Option object_output="./"/>
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
+					<Add directory="C:/Users/Arseniy/CLionProjects/MashGraph/libs/include"/>
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/6.3.0/include/c++"/>
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/6.3.0/include/c++/mingw32"/>
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/6.3.0/include/c++/backward"/>
@@ -55,7 +57,7 @@
 					<Add directory="c:\mingw\bin\../lib/gcc/mingw32/6.3.0/../../../../mingw32/include"/>
 				</Compiler>
 				<MakeCommands>
-					<Build command="C:/MinGW/bin/mingw32-make.exe -f &quot;C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug/Makefile&quot;  VERBOSE=1 MashGraph/fast"/>
+					<Build command="C:/MinGW/bin/mingw32-make.exe -f &quot;C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug/Makefile&quot;  VERBOSE=1 main.cpp/fast"/>
 					<CompileFile command="C:/MinGW/bin/mingw32-make.exe -f &quot;C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
 					<Clean command="C:/MinGW/bin/mingw32-make.exe -f &quot;C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 					<DistClean command="C:/MinGW/bin/mingw32-make.exe -f &quot;C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
@@ -83,7 +85,7 @@
 			</Target>
 		</Build>
 		<Unit filename="C:/Users/Arseniy/CLionProjects/MashGraph/main.cpp">
-			<Option target="MashGraph"/>
+			<Option target="main.cpp"/>
 		</Unit>
 		<Unit filename="C:/Users/Arseniy/CLionProjects/MashGraph/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
