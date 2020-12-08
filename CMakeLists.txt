@@ -12,4 +12,4 @@ link_directories("${PROJECT_SOURCE_DIR}/libs")
 
 add_executable(main.cpp ${SOURCE_FILES})
 
-target_link_libraries (main.cpp  glfw3 glew32s.lib ${OPENGL_LIBRARIES})
+target_link_libraries (main.cpp  glfw3 glew32s.lib SOIL.lib ${OPENGL_LIBRARIES}  )
