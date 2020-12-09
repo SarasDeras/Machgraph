@@ -1408,6 +1408,36 @@ detail/setup.hpp
 detail/func_vector_relational.inl
 ../libs/include/glm/detail/func_vector_relational.inl
 
+C:/Users/Arseniy/CLionProjects/MashGraph/Camera.h
+libs/include/glew.h
+C:/Users/Arseniy/CLionProjects/MashGraph/libs/include/glew.h
+libs/include/glfw3.h
+C:/Users/Arseniy/CLionProjects/MashGraph/libs/include/glfw3.h
+glm/glm.hpp
+-
+glm/gtc/matrix_transform.hpp
+-
+glm/gtc/type_ptr.hpp
+-
+
+C:/Users/Arseniy/CLionProjects/MashGraph/Shader.h
+libs/include/glew.h
+C:/Users/Arseniy/CLionProjects/MashGraph/libs/include/glew.h
+iostream
+-
+string
+-
+fstream
+-
+sstream
+-
+glm/glm.hpp
+-
+glm/gtc/matrix_transform.hpp
+-
+glm/gtc/type_ptr.hpp
+-
+
 C:/Users/Arseniy/CLionProjects/MashGraph/libs/include/SOIL.h
 
 C:/Users/Arseniy/CLionProjects/MashGraph/libs/include/glew.h
@@ -1481,6 +1511,10 @@ sstream
 -
 cmath
 -
+Shader.h
+C:/Users/Arseniy/CLionProjects/MashGraph/Shader.h
+Camera.h
+C:/Users/Arseniy/CLionProjects/MashGraph/Camera.h
 libs/include/glew.h
 C:/Users/Arseniy/CLionProjects/MashGraph/libs/include/glew.h
 libs/include/glfw3.h

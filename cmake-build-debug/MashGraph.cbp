@@ -84,6 +84,12 @@
 				</MakeCommands>
 			</Target>
 		</Build>
+		<Unit filename="C:/Users/Arseniy/CLionProjects/MashGraph/Camera.h">
+			<Option target="main.cpp"/>
+		</Unit>
+		<Unit filename="C:/Users/Arseniy/CLionProjects/MashGraph/Shader.h">
+			<Option target="main.cpp"/>
+		</Unit>
 		<Unit filename="C:/Users/Arseniy/CLionProjects/MashGraph/main.cpp">
 			<Option target="main.cpp"/>
 		</Unit>

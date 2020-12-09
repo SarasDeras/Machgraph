@@ -202,6 +202,8 @@ CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/vec2.hpp
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/vec3.hpp
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/vec4.hpp
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/vector_relational.hpp
+CMakeFiles/main.cpp.dir/main.cpp.obj: ../Camera.h
+CMakeFiles/main.cpp.dir/main.cpp.obj: ../Shader.h
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/SOIL.h
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glew.h
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glfw3.h
