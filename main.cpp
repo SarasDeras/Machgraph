@@ -6,15 +6,22 @@
 
 #include "Shader.h"
 #include "Camera.h"
+#include "Model.h"
 
 #define GLEW_STATIC
 #include "libs/include/glew.h"
 #include "libs/include/glfw3.h"
 #include "libs/include/SOIL.h"
 
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
+
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
+
+
 
 using namespace std;
 //Параметры окна
@@ -75,6 +82,29 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
     glViewport(0, 0, width, height);
 }
 
+unsigned int load_texture(string path){
+    unsigned int texture;
+
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    int width_t, height_t;
+    unsigned char* image = SOIL_load_image(path.c_str(), &width_t, &height_t, 0, SOIL_LOAD_RGB);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_t, height_t, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    SOIL_free_image_data(image);
+    glBindTexture(GL_TEXTURE_2D, 0);
+    return texture;
+}
+
 int main() {
     //Инициализация GLFW
     glfwInit();
@@ -114,8 +144,8 @@ int main() {
     Shader light_cube(R"(..\shaders\light.vert)", R"(..\shaders\light.frag)");
 
     //Примитивы
-    float vertices[] = {
-             // Координаты       // Текстуры    // Нормали
+    GLfloat vertices[] = {
+            // Координаты         // Текстуры  // Нормали
             -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
             0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f,  0.0f, -1.0f,
             0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  0.0f, -1.0f,
@@ -160,11 +190,6 @@ int main() {
     };
 
 
-    GLuint indices[] = {
-            0, 1, 3,
-            1, 2, 3
-    };
-
     //Создание контекстов
     GLuint VBO, VAO, EBO, lightVAO;
     glGenVertexArrays(1, &VAO);
@@ -181,10 +206,14 @@ int main() {
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
     // Атрибут с координатами
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*) 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*) 0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*) (3* sizeof(GLfloat)));
+    // Тексутры
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*) (3 * sizeof(GLfloat)));
     glEnableVertexAttribArray(1);
+    //Нормали
+    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*) (5* sizeof(GLfloat)));
+    glEnableVertexAttribArray(2);
     // Атрибут с цветом
     //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3* sizeof(GLfloat)));
     //glEnableVertexAttribArray(1);
@@ -194,7 +223,7 @@ int main() {
     glBindVertexArray(lightVAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
     glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -214,13 +243,33 @@ int main() {
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     int width_t, height_t;
-    unsigned char* image = SOIL_load_image(R"(..\textures\container.jpg)", &width_t, &height_t, 0, SOIL_LOAD_RGB);
+    unsigned char* image = SOIL_load_image(R"(..\textures\box.png)", &width_t, &height_t, 0, SOIL_LOAD_RGB);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_t, height_t, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
     glGenerateMipmap(GL_TEXTURE_2D);
 
     SOIL_free_image_data(image);
     glBindTexture(GL_TEXTURE_2D, 0);
+
+    GLuint texture2;
+
+    glGenTextures(1, &texture2);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    width_t, height_t;
+    image = SOIL_load_image(R"(..\textures\box_specular.png)", &width_t, &height_t, 0, SOIL_LOAD_RGB);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_t, height_t, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
+    glGenerateMipmap(GL_TEXTURE_2D);
+
+    SOIL_free_image_data(image);
+    glBindTexture(GL_TEXTURE_2D, 1);
 
 
     // Игровой цикл
@@ -239,9 +288,16 @@ int main() {
         // Рендеринг объектов
         cube.use();
         cube.setVec3("viewPos", camera.Pos);
-        cube.setVec3("lightPos", lightPos);
-        cube.setVec3("objectColor", glm::vec3(1.0f, 0.5f, 0.31f));
-        cube.setVec3("lightColor", glm::vec3(1.0f, 1.0f, 1.0f));
+        cube.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+        cube.setFloat("material.shininess", 32.0f);
+        cube.setVec3("light.ambient",  glm::vec3(0.2f, 0.2f, 0.2f));
+        cube.setVec3("light.diffuse",  glm::vec3(0.75f, 0.75f, 0.75f));
+        cube.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        cube.setVec3("light.position", lightPos);
+        cube.setFloat("light.constant",  1.0f);
+        cube.setFloat("light.linear",    0.09f);
+        cube.setFloat("light.quadratic", 0.032f);
+
 
         glm::mat4 view, projection;
         view = camera.GetViewMatrix();
@@ -252,7 +308,6 @@ int main() {
         glm::mat4 model = glm::mat4(1.0f);
         cube.setMat4("model", model);
 
-        //glBindTexture(GL_TEXTURE_2D, texture1);
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
 
@@ -282,4 +337,6 @@ int main() {
     glfwTerminate();
     return 0;
 }
+
+
 

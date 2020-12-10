@@ -60,15 +60,15 @@ CMakeFiles/main.cpp.dir/main.cpp.obj: CMakeFiles/main.cpp.dir/flags.make
 CMakeFiles/main.cpp.dir/main.cpp.obj: CMakeFiles/main.cpp.dir/includes_CXX.rsp
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../main.cpp
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=C:\Users\Arseniy\CLionProjects\MashGraph\cmake-build-debug\CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/main.cpp.dir/main.cpp.obj"
-	C:\MinGW\bin\g++.exe  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\main.cpp.dir\main.cpp.obj -c C:\Users\Arseniy\CLionProjects\MashGraph\main.cpp
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles\main.cpp.dir\main.cpp.obj -c C:\Users\Arseniy\CLionProjects\MashGraph\main.cpp
 
 CMakeFiles/main.cpp.dir/main.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/main.cpp.dir/main.cpp.i"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\Arseniy\CLionProjects\MashGraph\main.cpp > CMakeFiles\main.cpp.dir\main.cpp.i
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E C:\Users\Arseniy\CLionProjects\MashGraph\main.cpp > CMakeFiles\main.cpp.dir\main.cpp.i
 
 CMakeFiles/main.cpp.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/main.cpp.dir/main.cpp.s"
-	C:\MinGW\bin\g++.exe $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Arseniy\CLionProjects\MashGraph\main.cpp -o CMakeFiles\main.cpp.dir\main.cpp.s
+	C:\PROGRA~2\MINGW-~1\I686-8~1.0-P\mingw32\bin\G__~1.EXE $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S C:\Users\Arseniy\CLionProjects\MashGraph\main.cpp -o CMakeFiles\main.cpp.dir\main.cpp.s
 
 # Object files for target main.cpp
 main_cpp_OBJECTS = \

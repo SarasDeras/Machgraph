@@ -3,7 +3,7 @@ project(MashGraph)
 
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-set(SOURCE_FILES main.cpp Shader.h Camera.h)
+set(SOURCE_FILES main.cpp Shader.h Camera.h Model.h)
 
 find_package(OpenGL REQUIRED)
 
@@ -12,4 +12,4 @@ link_directories("${PROJECT_SOURCE_DIR}/libs")
 
 add_executable(main.cpp ${SOURCE_FILES})
 
-target_link_libraries (main.cpp  glfw3 glew32s.lib SOIL.lib ${OPENGL_LIBRARIES}  )
+target_link_libraries(main.cpp libglfw3.a glew32s.lib SOIL.lib ${OPENGL_LIBRARIES})
