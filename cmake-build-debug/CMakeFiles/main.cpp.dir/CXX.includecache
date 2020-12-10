@@ -1639,6 +1639,8 @@ utility
 -
 vector
 -
+Shader.h
+C:/Users/Arseniy/CLionProjects/MashGraph/Shader.h
 libs/include/glew.h
 C:/Users/Arseniy/CLionProjects/MashGraph/libs/include/glew.h
 libs/include/glfw3.h

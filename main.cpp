@@ -140,7 +140,7 @@ int main() {
     glEnable(GL_DEPTH_TEST);
 
     //Шейдеры
-    Shader cube(R"(..\shaders\default.vert)", R"(..\shaders\default.frag)");
+    Shader obj_shader(R"(..\shaders\default.vert)", R"(..\shaders\default.frag)");
     Shader light_cube(R"(..\shaders\light.vert)", R"(..\shaders\light.frag)");
 
     //Примитивы
@@ -190,87 +190,26 @@ int main() {
     };
 
 
-    //Создание контекстов
-    GLuint VBO, VAO, EBO, lightVAO;
-    glGenVertexArrays(1, &VAO);
-    glGenVertexArrays(1, &lightVAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
+    // Загрузка текстур
+    unsigned int cube_diffuse = load_texture(R"(..\textures\box.png)");
+    unsigned int cube_spec = load_texture(R"(..\textures\box_specular.png)");
 
-    glBindVertexArray(VAO);
+    //Созданние mesheй
+    TriangleMesh cube(vertices, sizeof(vertices), cube_diffuse, cube_spec);
+    TriangleMesh light(vertices, sizeof(vertices), cube_diffuse, cube_spec);
+    light.translate(lightPos);
+    light.scale(glm::vec3(0.2f));
 
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
-
-    // Атрибут с координатами
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*) 0);
-    glEnableVertexAttribArray(0);
-    // Тексутры
-    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*) (3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-    //Нормали
-    glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*) (5* sizeof(GLfloat)));
-    glEnableVertexAttribArray(2);
-    // Атрибут с цветом
-    //glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3* sizeof(GLfloat)));
-    //glEnableVertexAttribArray(1);
-    //Текстуры
-    //glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*) (3 * sizeof(GLfloat)));
-    //glEnableVertexAttribArray(1);
-    glBindVertexArray(lightVAO);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
-
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-
-    glBindVertexArray(0);
-
-    //Загрузка текстур
-    GLuint texture1;
-
-    glGenTextures(1, &texture1);
-    glBindTexture(GL_TEXTURE_2D, texture1);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    int width_t, height_t;
-    unsigned char* image = SOIL_load_image(R"(..\textures\box.png)", &width_t, &height_t, 0, SOIL_LOAD_RGB);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_t, height_t, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    SOIL_free_image_data(image);
-    glBindTexture(GL_TEXTURE_2D, 0);
-
-    GLuint texture2;
-
-    glGenTextures(1, &texture2);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    width_t, height_t;
-    image = SOIL_load_image(R"(..\textures\box_specular.png)", &width_t, &height_t, 0, SOIL_LOAD_RGB);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width_t, height_t, 0, GL_RGB, GL_UNSIGNED_BYTE, image);
-    glGenerateMipmap(GL_TEXTURE_2D);
-
-    SOIL_free_image_data(image);
-    glBindTexture(GL_TEXTURE_2D, 1);
-
+    // Параметры света
+    // Точечный источник света
+    obj_shader.use();
+    obj_shader.setVec3("light.ambient",  glm::vec3(0.2f, 0.2f, 0.2f));
+    obj_shader.setVec3("light.diffuse",  glm::vec3(0.75f, 0.75f, 0.75f));
+    obj_shader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    obj_shader.setVec3("light.position", lightPos);
+    obj_shader.setFloat("light.constant",  1.0f);
+    obj_shader.setFloat("light.linear",    0.09f);
+    obj_shader.setFloat("light.quadratic", 0.032f);
 
     // Игровой цикл
     while(!glfwWindowShouldClose(window)) {
@@ -278,6 +217,7 @@ int main() {
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
+
         // Cобытия
         glfwPollEvents();
 
@@ -285,55 +225,30 @@ int main() {
         glClearColor(0.1f, 0.15f, 0.15f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Рендеринг объектов
-        cube.use();
-        cube.setVec3("viewPos", camera.Pos);
-        cube.setVec3("material.specular", glm::vec3(0.5f, 0.5f, 0.5f));
-        cube.setFloat("material.shininess", 32.0f);
-        cube.setVec3("light.ambient",  glm::vec3(0.2f, 0.2f, 0.2f));
-        cube.setVec3("light.diffuse",  glm::vec3(0.75f, 0.75f, 0.75f));
-        cube.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        cube.setVec3("light.position", lightPos);
-        cube.setFloat("light.constant",  1.0f);
-        cube.setFloat("light.linear",    0.09f);
-        cube.setFloat("light.quadratic", 0.032f);
 
-
+        // Матрицы связанные с камерой
         glm::mat4 view, projection;
         view = camera.GetViewMatrix();
         projection = glm::perspective(glm::radians(camera.Zoom), (float) window_width / (float) window_height, 0.1f, 100.0f);
-        cube.setMat4("view", view);
-        cube.setMat4("projection", projection);
 
-        glm::mat4 model = glm::mat4(1.0f);
-        cube.setMat4("model", model);
-
-        glBindVertexArray(VAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-
-        //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+        obj_shader.use();
+        obj_shader.setMat4("view", view);
+        obj_shader.setMat4("projection", projection);
+        obj_shader.setVec3("viewPos", camera.Pos);
 
         light_cube.use();
         light_cube.setMat4("projection", projection);
         light_cube.setMat4("view", view);
-        model = glm::mat4(1.0f);
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, glm::vec3(0.2f)); // куб, меньшего размера
-        light_cube.setMat4("model", model);
-
-        glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
 
 
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
+
+        // Рендеринг объектов
+        cube.Render(obj_shader);
+        light.Render(light_cube);
 
         glfwSwapBuffers(window);
     }
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
+
     glfwTerminate();
     return 0;
 }
