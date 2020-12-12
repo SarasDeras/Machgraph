@@ -784,17 +784,18 @@ int main() {
     glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
     shader.use();
     shader.setInt("material.diffuse", 0);
+    shader.setInt("material.specular", 1);
+    shader.setFloat("material.shininess", 64.0f);
     shader.setInt("depthMap", 10);
-    /*
+
     // Точечный источник света
     shader.use();
-    shader.setVec3("light.ambient",  glm::vec3(0.30f, 0.30f, 0.30f));
-    shader.setVec3("light.diffuse",  glm::vec3(0.9f, 0.9f, 0.9f));
-    shader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    shader.setVec3("light.ambient",  glm::vec3(0.15f, 0.15f, 0.15f));
+    shader.setVec3("light.diffuse",  glm::vec3(0.5f, 0.5f, 0.5f));
+    shader.setVec3("light.specular", glm::vec3(0.5f, 0.5f, 0.5f));
     shader.setFloat("light.constant",  1.0f);
     shader.setFloat("light.linear",    0.07f);
     shader.setFloat("light.quadratic", 0.017f);
-    */
 
     // Игровой цикл
     while (!glfwWindowShouldClose(window))
@@ -810,7 +811,7 @@ int main() {
         processInput(window);
 
         // изменение позиции источника света с течением времени
-        lightPos.z = sin(glfwGetTime() * 0.5) * 3.0;
+        //lightPos.z = sin(glfwGetTime() * 0.5) * 3.0;
 
         // рендер
         // ------
@@ -858,6 +859,8 @@ int main() {
         shader.setInt("shadows", shadows); // "Пробел" включает/отключает тени
         shader.setFloat("far_plane", far_plane);
         glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, woodTexture);
+        glActiveTexture(GL_TEXTURE1);
         glBindTexture(GL_TEXTURE_2D, woodTexture);
         glActiveTexture(GL_TEXTURE10);
         glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
