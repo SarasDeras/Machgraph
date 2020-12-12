@@ -24,10 +24,11 @@
 
 
 using namespace std;
+/*
 //Параметры окна
 int window_width = 800, window_height = 600;
 
-/*
+
 // Обработка мыши
 float lastX = (float) window_width / 2.0f, lastY = (float) window_height / 2.0f;
 bool firstMouse = true;
@@ -458,7 +459,7 @@ int main() {
         obj_shader.setVec3("viewPos", camera.Pos);
         obj_shader.setVec3("light.position", lightPos);
         obj_shader.setFloat("far_plane", far_plane);
-        */
+
         obj_shader.setVec3("lightPos", lightPos);
         obj_shader.setVec3("viewPos", camera.Pos);
         //shader.setInt("shadows", shadows); // "Пробел" включает/отключает тени
@@ -521,15 +522,15 @@ void renderScene(const Shader& shader);
 void renderCube();
 
 // настройки
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+const unsigned int window_width = 800;
+const unsigned int window_height = 600;
 bool shadows = true;
 bool shadowsKeyPressed = false;
 
 // камера
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-float lastX = (float)SCR_WIDTH / 2.0;
-float lastY = (float)SCR_HEIGHT / 2.0;
+float lastX = (float)window_width / 2.0;
+float lastY = (float)window_height / 2.0;
 bool firstMouse = true;
 
 // тайминги
@@ -546,69 +547,207 @@ void renderScene(const Shader& shader);
 void renderCube();
 
 // настройки
-const unsigned int SCR_WIDTH = 600;
-const unsigned int SCR_HEIGHT = 400;
+const unsigned int window_width = 800;
+const unsigned int window_height = 600;
 bool shadows = true;
 bool shadowsKeyPressed = false;
 
 // камера
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
-float lastX = (float)SCR_WIDTH / 2.0;
-float lastY = (float)SCR_HEIGHT / 2.0;
+float lastX = (float) window_width / 2.0;
+float lastY = (float) window_height / 2.0;
 bool firstMouse = true;
 
 // тайминги
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
-int main()
-{
-    // glfw: инициализация и конфигурирование
-    // ------------------------------
+int main() {
+    //Инициализация GLFW
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
-#ifdef __APPLE__
-    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
-#endif
-
-    // glfw: создание окна
-    // --------------------
-    GLFWwindow* window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "OpenGL for Ravesli.com!", NULL, NULL);
-    if (window == NULL)
-    {
-        std::cout << "Failed to create GLFW window" << std::endl;
+    //Cоздание окна
+    GLFWwindow* window = glfwCreateWindow(window_width, window_height, "MashGraph", nullptr, nullptr);
+    if (window == nullptr) {
+        cout << "Failed to create GLFW window" << endl;
         glfwTerminate();
         return -1;
     }
     glfwMakeContextCurrent(window);
+
+    //Инициализация GLEW
+    glewExperimental = GL_TRUE;
+    if (glewInit() != GLEW_OK) {
+        cout << "Failed to initialize GLEW" << endl;
+        return -1;
+    }
+
+    //Обработчики событий и рабочая область
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+    glViewport(0, 0, window_width, window_height);
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //glfwSetKeyCallback(window, );
     glfwSetCursorPosCallback(window, mouse_callback);
     glfwSetScrollCallback(window, scroll_callback);
 
-    // говорим GLFW захватить курсор нашей мышки
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-
-
-    // конфигурирование глобального состояния OpenGL
-    // -----------------------------
+    //Обработка глубины
     glEnable(GL_DEPTH_TEST);
+    //Обработка граней
     glEnable(GL_CULL_FACE);
 
-    // компилирование нашей шейдерной программы
-    // -------------------------
+
+    //Шейдеры
+    //Shader obj_shader(R"(..\shaders\default.vert)", R"(..\shaders\default.frag)");
     Shader shader("../3.2.1.point_shadows.vs", "../3.2.1.point_shadows.fs");
+    //Shader light_cube(R"(..\shaders\light.vert)", R"(..\shaders\light.frag)");
+    Shader skybox_shader(R"(..\shaders\skybox.vert)", R"(..\shaders\skybox.frag)");
+    //Shader DepthShader(R"(..\shaders\depthshader.vert)", R"(..\shaders\depthshader.frag)",
+    //R"(..\shaders\depthshader.geom)");
     Shader simpleDepthShader("../3.2.1.point_shadows_depth.vs", "../3.2.1.point_shadows_depth.fs", "../3.2.1.point_shadows_depth.gs");
 
-    // загрузка текстур
-    // -------------
-    unsigned int woodTexture = loadTexture("../resources/textures/wood.png");
+    //Примитивы
+    GLfloat vertices[] = {
+            // Координаты         // Текстуры  // Нормали
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
+            0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f,  0.0f, -1.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  0.0f, -1.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  0.0f, -1.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  0.0f, -1.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  0.0f,  1.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  0.0f,  0.0f,  1.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
+            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, -1.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, -1.0f,  0.0f,  0.0f,
+            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  1.0f,  0.0f,  0.0f,
+            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
+            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
+            0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f,  0.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, -1.0f,  0.0f,
+            0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f, -1.0f,  0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f, -1.0f,  0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f, -1.0f,  0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f, -1.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, -1.0f,  0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f,  0.0f,
+            0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  1.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  1.0f,  0.0f,
+            0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  1.0f,  0.0f,
+            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 0.0f,  1.0f,  0.0f,
+            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f,  0.0f
+    };
 
-    // настраиваем карту глубины FBO
-    // -----------------------
+    float skyboxVertices[] = {
+            // Координаты
+            -1.0f,  1.0f, -1.0f,
+            -1.0f, -1.0f, -1.0f,
+            1.0f, -1.0f, -1.0f,
+            1.0f, -1.0f, -1.0f,
+            1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+            -1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f, -1.0f,
+            -1.0f,  1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,
+            1.0f, -1.0f, -1.0f,
+            1.0f, -1.0f,  1.0f,
+            1.0f,  1.0f,  1.0f,
+            1.0f,  1.0f,  1.0f,
+            1.0f,  1.0f, -1.0f,
+            1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f,  1.0f,
+            -1.0f,  1.0f,  1.0f,
+            1.0f,  1.0f,  1.0f,
+            1.0f,  1.0f,  1.0f,
+            1.0f, -1.0f,  1.0f,
+            -1.0f, -1.0f,  1.0f,
+            -1.0f,  1.0f, -1.0f,
+            1.0f,  1.0f, -1.0f,
+            1.0f,  1.0f,  1.0f,
+            1.0f,  1.0f,  1.0f,
+            -1.0f,  1.0f,  1.0f,
+            -1.0f,  1.0f, -1.0f,
+            -1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f,  1.0f,
+            1.0f, -1.0f, -1.0f,
+            1.0f, -1.0f, -1.0f,
+            -1.0f, -1.0f,  1.0f,
+            1.0f, -1.0f,  1.0f
+    };
+
+    float floor_v[] = {
+            // Координаты         // Текстуры  // Нормали
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, 1.0f,  0.0f,
+            0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  1.0f,  0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  1.0f,  0.0f,
+            0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  1.0f,  0.0f,
+            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f, 1.0f,  0.0f,
+            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, 1.0f,  0.0f,
+    };
+    // Загрузка текстур
+    unsigned int cube_diffuse = load_texture(R"(..\textures\box.png)");
+    unsigned int cube_spec = load_texture(R"(..\textures\box_specular.png)", false);
+    unsigned int floor_all = load_texture(R"(..\textures\floor.jpg)");
+    unsigned int woodTexture = load_texture("../resources/textures/wood.png");
+
+    vector<string> faces = {
+            "right.jpg",
+            "left.jpg",
+            "top.jpg",
+            "bottom.jpg",
+            "front.jpg",
+            "back.jpg"
+    };
+    int scale_floor = 20;
+    for (int i = 0; i < 6; ++i){
+        floor_v[i * 8 + 3] *= (float) scale_floor;
+        floor_v[i * 8 + 4] *= (float) scale_floor;
+    }
+    float cubes_pos[] = {
+            0.0f, 1.75f, 1.25f,
+            0.0f, 0.5f, 3.25f,
+    };
+    int cubs_count = sizeof(cubes_pos) / (3 *  sizeof(cubes_pos[0]));
+
+    //Созданние mesheй
+    TriangleMesh cube(vertices, sizeof(vertices), cube_diffuse, cube_spec);
+    //TriangleMesh light(vertices, sizeof(vertices), cube_diffuse, cube_spec);
+    TriangleMesh floor(floor_v, sizeof(floor_v), floor_all, floor_all, 48);
+    TriangleMesh big_cube(vertices, sizeof(vertices), cube_diffuse, cube_spec);
+
+
+    floor.scale(glm::vec3((float) scale_floor));
+    floor.translate(glm::vec3(0.0f, 0.5f, 0.0f));
+
+
+    // VAO скайбокса
+    unsigned int skyboxVAO, skyboxVBO;
+    glGenVertexArrays(1, &skyboxVAO);
+    glGenBuffers(1, &skyboxVBO);
+    glBindVertexArray(skyboxVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, skyboxVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(skyboxVertices), &skyboxVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*) 0);
+
+
+    // Создание всенаправленной карты теней
     const unsigned int SHADOW_WIDTH = 1024, SHADOW_HEIGHT = 1024;
     unsigned int depthMapFBO;
     glGenFramebuffers(1, &depthMapFBO);
@@ -631,40 +770,44 @@ int main()
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 
-    // конфигурация шейдеров
-    // --------------------
+    // Установка текстур
     shader.use();
-    shader.setInt("diffuseTexture", 0);
-    shader.setInt("depthMap", 1);
-
-    // параметры освещения
-    // -------------
+    shader.setInt("material.diffuse", 0);
+    shader.setInt("material.specular", 1);
+    shader.setInt("material.shininess;", 48);
+    shader.setInt("depthMap", 10);
+    // Параметры света
     glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
 
-    // цикл рендеринга
-    // -----------
-    while (!glfwWindowShouldClose(window))
-    {
-        // логическая часть работы со временем для каждого кадра
-        // --------------------
+    // Точечный источник света
+    shader.use();
+    shader.setVec3("light.ambient",  glm::vec3(0.30f, 0.30f, 0.30f));
+    shader.setVec3("light.diffuse",  glm::vec3(0.9f, 0.9f, 0.9f));
+    shader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+    shader.setFloat("light.constant",  1.0f);
+    shader.setFloat("light.linear",    0.07f);
+    shader.setFloat("light.quadratic", 0.017f);
+    // Настройки skybox
+    skybox_shader.setInt("skybox", 4);
+
+    // Игровой цикл
+    while (!glfwWindowShouldClose(window)) {
+        // Обработка времени
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // обработка ввода
-        // -----
+        // Обработка ввода
         processInput(window);
 
         // изменение позиции источника света с течением времени
-        lightPos.z = sin(glfwGetTime() * 0.5) * 3.0;
+        //lightPos.z = sin(glfwGetTime() * 0.5) * 3.0;
 
-        // рендер
-        // ------
+        // Очистка буферов
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // 0. создаём матрицы трансформации кубической карты глубины
-        // -----------------------------------------------
+        // Создаём матрицы трансформации кубической карты глубины
         float near_plane = 1.0f;
         float far_plane = 25.0f;
         glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
@@ -676,8 +819,7 @@ int main()
         shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
         shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
-        // 1. рендерим сцену в кубическую карту глубины
-        // --------------------------------
+        // Рендеринг в карту глубины
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -687,30 +829,66 @@ int main()
         simpleDepthShader.setFloat("far_plane", far_plane);
         simpleDepthShader.setVec3("lightPos", lightPos);
         renderScene(simpleDepthShader);
+        floor.Render(simpleDepthShader);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        // 2. рендерим сцену как обычно
-        // -------------------------
-        glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
+        // Обычный рендеринг
+        glViewport(0, 0, window_width, window_height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Матрицы связанные с камерой
+        glm::mat4 view, projection;
+
+        view = camera.GetViewMatrix();
+        projection = glm::perspective(glm::radians(camera.Zoom), (float)window_width / (float)window_height, 0.1f, 100.0f);
+
         shader.use();
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-        glm::mat4 view = camera.GetViewMatrix();
         shader.setMat4("projection", projection);
         shader.setMat4("view", view);
         // устанавливаем uniform-переменные освещения
-        shader.setVec3("lightPos", lightPos);
-        shader.setVec3("viewPos", camera.Position);
+        shader.setVec3("light.position", lightPos);
+        shader.setVec3("viewPos", camera.Pos);
         shader.setInt("shadows", shadows); // "Пробел" включает/отключает тени
         shader.setFloat("far_plane", far_plane);
+        shader.use();
+        shader.setVec3("light.ambient",  glm::vec3(0.30f, 0.30f, 0.30f));
+        shader.setVec3("light.diffuse",  glm::vec3(0.9f, 0.9f, 0.9f));
+        shader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
+        shader.setFloat("light.constant",  1.0f);
+        shader.setFloat("light.linear",    0.07f);
+        shader.setFloat("light.quadratic", 0.017f);
+        shader.setInt("material.diffuse", 0);
+        shader.setInt("material.specular", 1);
+        shader.setInt("material.shininess;", 48);
+        shader.setInt("depthMap", 10);
+
+
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, woodTexture);
         glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D, woodTexture);
+        glActiveTexture(GL_TEXTURE10);
         glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
         renderScene(shader);
 
-        // glfw: обмен содержимым переднего и заднего буферов. Опрос событий Ввода\Ввывода (была ли нажата/отпущена кнопка, перемещен курсор мыши и т.п.)
-        // -------------------------------------------------------------------------------
+        //floor.Render(shader);
+
+        //Рендеринг скайбокса
+        /*
+        glDepthFunc(GL_LEQUAL);
+        skybox_shader.use();
+        view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
+        skybox_shader.setMat4("view", view);
+        skybox_shader.setMat4("projection", projection);
+        glBindVertexArray(skyboxVAO);
+        glActiveTexture(GL_TEXTURE4);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+        glDepthFunc(GL_LESS);
+         */
+
+        // Отрисовка
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -725,6 +903,7 @@ void renderScene(const Shader& shader)
 {
     // комната
     glm::mat4 model = glm::mat4(1.0f);
+
     model = glm::scale(model, glm::vec3(5.0f));
     shader.setMat4("model", model);
     glDisable(GL_CULL_FACE); // обратите внимание, что здесь мы отключаем отсечение граней, т.к. рендерим "внутри" комнаты, а не "снаружи" (в обычном варианте)
@@ -732,6 +911,7 @@ void renderScene(const Shader& shader)
     renderCube();
     shader.setInt("reverse_normals", 0); // ну а теперь отключаем инвертирование нормалей
     glEnable(GL_CULL_FACE);
+
     // ящики
     model = glm::mat4(1.0f);
     model = glm::translate(model, glm::vec3(4.0f, -3.5f, 0.0));
@@ -844,13 +1024,13 @@ void processInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        camera.ProcessKeyboard(FORWARD, deltaTime);
+        camera.key_callback(FORWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
+        camera.key_callback(BACKWARD, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        camera.ProcessKeyboard(LEFT, deltaTime);
+        camera.key_callback(LEFT, deltaTime);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        camera.ProcessKeyboard(RIGHT, deltaTime);
+        camera.key_callback(RIGHT, deltaTime);
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !shadowsKeyPressed)
     {
@@ -889,52 +1069,15 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     lastX = xpos;
     lastY = ypos;
 
-    camera.ProcessMouseMovement(xoffset, yoffset);
+    camera.mouse_callback(xoffset, yoffset);
 }
 
 // glfw: всякий раз, когда прокручивается колесико мыши, вызывается данная callback-функция
 // ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
-    camera.ProcessMouseScroll(yoffset);
+    camera.scroll_callback(xoffset, yoffset);
 }
 
-// вспомогательная функция загрузки 2D-текстур из файла
-// ---------------------------------------------------
-unsigned int loadTexture(char const* path)
-{
-    unsigned int textureID;
-    glGenTextures(1, &textureID);
 
-    int width, height, nrComponents;
-    unsigned char* data = stbi_load(path, &width, &height, &nrComponents, 0);
-    if (data)
-    {
-        GLenum format;
-        if (nrComponents == 1)
-            format = GL_RED;
-        else if (nrComponents == 3)
-            format = GL_RGB;
-        else if (nrComponents == 4)
-            format = GL_RGBA;
-
-        glBindTexture(GL_TEXTURE_2D, textureID);
-        glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
-        glGenerateMipmap(GL_TEXTURE_2D);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT); // для данного урока: используйте GL_CLAMP_TO_EDGE для предотвращения возникновения полупрозрачных границ. Благодаря интерполяции берутся тексели из следующего повторения
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, format == GL_RGBA ? GL_CLAMP_TO_EDGE : GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-        stbi_image_free(data);
-    }
-    else
-    {
-        std::cout << "Texture failed to load at path: " << path << std::endl;
-        stbi_image_free(data);
-    }
-
-    return textureID;
-}
 
