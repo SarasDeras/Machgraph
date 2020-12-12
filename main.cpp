@@ -110,7 +110,7 @@ unsigned int load_texture(const string& path, bool correction=true){
     glBindTexture(GL_TEXTURE_2D, 0);
     return texture;
 }
-/*
+
 unsigned int load_cubetexture(const string& path, const vector<string>& names, bool correction=true) {
     unsigned int texture_cube;
     glGenTextures(1, &texture_cube);
@@ -139,7 +139,7 @@ unsigned int load_cubetexture(const string& path, const vector<string>& names, b
     glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
     return texture_cube;
 }
-
+/*
 void renderScene(const Shader& shader);
 void renderCube();
 void renderCube();
@@ -604,7 +604,7 @@ int main() {
     //Шейдеры
     //Shader obj_shader(R"(..\shaders\default.vert)", R"(..\shaders\default.frag)");
     Shader shader("../3.2.1.point_shadows.vs", "../3.2.1.point_shadows.fs");
-    //Shader light_cube(R"(..\shaders\light.vert)", R"(..\shaders\light.frag)");
+    Shader light_cube(R"(..\shaders\light.vert)", R"(..\shaders\light.frag)");
     Shader skybox_shader(R"(..\shaders\skybox.vert)", R"(..\shaders\skybox.frag)");
     //Shader DepthShader(R"(..\shaders\depthshader.vert)", R"(..\shaders\depthshader.frag)",
     //R"(..\shaders\depthshader.geom)");
@@ -714,6 +714,7 @@ int main() {
             "front.jpg",
             "back.jpg"
     };
+    unsigned int skybox_texture = load_cubetexture(R"(..\textures\skybox)", faces, false);
     int scale_floor = 20;
     for (int i = 0; i < 6; ++i){
         floor_v[i * 8 + 3] *= (float) scale_floor;
@@ -727,7 +728,7 @@ int main() {
 
     //Созданние mesheй
     TriangleMesh cube(vertices, sizeof(vertices), cube_diffuse, cube_spec);
-    //TriangleMesh light(vertices, sizeof(vertices), cube_diffuse, cube_spec);
+    TriangleMesh light(vertices, sizeof(vertices), cube_diffuse, cube_spec);
     TriangleMesh floor(floor_v, sizeof(floor_v), floor_all, floor_all, 48);
     TriangleMesh big_cube(vertices, sizeof(vertices), cube_diffuse, cube_spec);
 
@@ -735,6 +736,8 @@ int main() {
     floor.scale(glm::vec3((float) scale_floor));
     floor.translate(glm::vec3(0.0f, 0.5f, 0.0f));
 
+    // Настройки skybox
+    skybox_shader.setInt("skybox", 9);
 
     // VAO скайбокса
     unsigned int skyboxVAO, skyboxVBO;
@@ -769,16 +772,20 @@ int main() {
     glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-
+    /*
     // Установка текстур
     shader.use();
     shader.setInt("material.diffuse", 0);
     shader.setInt("material.specular", 1);
     shader.setInt("material.shininess;", 48);
     shader.setInt("depthMap", 10);
+     */
     // Параметры света
     glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
-
+    shader.use();
+    shader.setInt("diffuseTextures", 0);
+    shader.setInt("depthMap", 1);
+    /*
     // Точечный источник света
     shader.use();
     shader.setVec3("light.ambient",  glm::vec3(0.30f, 0.30f, 0.30f));
@@ -787,27 +794,31 @@ int main() {
     shader.setFloat("light.constant",  1.0f);
     shader.setFloat("light.linear",    0.07f);
     shader.setFloat("light.quadratic", 0.017f);
-    // Настройки skybox
-    skybox_shader.setInt("skybox", 4);
+    */
 
     // Игровой цикл
-    while (!glfwWindowShouldClose(window)) {
-        // Обработка времени
+    while (!glfwWindowShouldClose(window))
+    {
+        // логическая часть работы со временем для каждого кадра
+        // --------------------
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // Обработка ввода
+        // обработка ввода
+        // -----
         processInput(window);
 
         // изменение позиции источника света с течением времени
-        //lightPos.z = sin(glfwGetTime() * 0.5) * 3.0;
+        lightPos.z = sin(glfwGetTime() * 0.5) * 3.0;
 
-        // Очистка буферов
+        // рендер
+        // ------
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // Создаём матрицы трансформации кубической карты глубины
+        // 0. создаём матрицы трансформации кубической карты глубины
+        // -----------------------------------------------
         float near_plane = 1.0f;
         float far_plane = 25.0f;
         glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
@@ -819,7 +830,8 @@ int main() {
         shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
         shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
-        // Рендеринг в карту глубины
+        // 1. рендерим сцену в кубическую карту глубины
+        // --------------------------------
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -829,20 +841,15 @@ int main() {
         simpleDepthShader.setFloat("far_plane", far_plane);
         simpleDepthShader.setVec3("lightPos", lightPos);
         renderScene(simpleDepthShader);
-        floor.Render(simpleDepthShader);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        // Обычный рендеринг
+        // 2. рендерим сцену как обычно
+        // -------------------------
         glViewport(0, 0, window_width, window_height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        // Матрицы связанные с камерой
-        glm::mat4 view, projection;
-
-        view = camera.GetViewMatrix();
-        projection = glm::perspective(glm::radians(camera.Zoom), (float)window_width / (float)window_height, 0.1f, 100.0f);
-
         shader.use();
+        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)window_width / (float)window_height, 0.1f, 100.0f);
+        glm::mat4 view = camera.GetViewMatrix();
         shader.setMat4("projection", projection);
         shader.setMat4("view", view);
         // устанавливаем uniform-переменные освещения
@@ -850,45 +857,14 @@ int main() {
         shader.setVec3("viewPos", camera.Pos);
         shader.setInt("shadows", shadows); // "Пробел" включает/отключает тени
         shader.setFloat("far_plane", far_plane);
-        shader.use();
-        shader.setVec3("light.ambient",  glm::vec3(0.30f, 0.30f, 0.30f));
-        shader.setVec3("light.diffuse",  glm::vec3(0.9f, 0.9f, 0.9f));
-        shader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
-        shader.setFloat("light.constant",  1.0f);
-        shader.setFloat("light.linear",    0.07f);
-        shader.setFloat("light.quadratic", 0.017f);
-        shader.setInt("material.diffuse", 0);
-        shader.setInt("material.specular", 1);
-        shader.setInt("material.shininess;", 48);
-        shader.setInt("depthMap", 10);
-
-
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, woodTexture);
         glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, woodTexture);
-        glActiveTexture(GL_TEXTURE10);
         glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
         renderScene(shader);
 
-        //floor.Render(shader);
-
-        //Рендеринг скайбокса
-        /*
-        glDepthFunc(GL_LEQUAL);
-        skybox_shader.use();
-        view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
-        skybox_shader.setMat4("view", view);
-        skybox_shader.setMat4("projection", projection);
-        glBindVertexArray(skyboxVAO);
-        glActiveTexture(GL_TEXTURE4);
-        glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
-        glDepthFunc(GL_LESS);
-         */
-
-        // Отрисовка
+        // glfw: обмен содержимым переднего и заднего буферов. Опрос событий Ввода\Ввывода (была ли нажата/отпущена кнопка, перемещен курсор мыши и т.п.)
+        // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
