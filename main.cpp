@@ -783,8 +783,8 @@ int main() {
     // Параметры света
     glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
     shader.use();
-    shader.setInt("diffuseTextures", 0);
-    shader.setInt("depthMap", 1);
+    shader.setInt("material.diffuse", 0);
+    shader.setInt("depthMap", 10);
     /*
     // Точечный источник света
     shader.use();
@@ -859,7 +859,7 @@ int main() {
         shader.setFloat("far_plane", far_plane);
         glActiveTexture(GL_TEXTURE0);
         glBindTexture(GL_TEXTURE_2D, woodTexture);
-        glActiveTexture(GL_TEXTURE1);
+        glActiveTexture(GL_TEXTURE10);
         glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
         renderScene(shader);
 
