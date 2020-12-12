@@ -18,7 +18,7 @@ enum Camera_Movement {
 };
 
 // Параметры камеры по умолчанию
-const float YAW = -90.0f;
+const float YAW = 0.0f;
 const float PITCH = 0.0f;
 const float SPEED = 5.0f;
 const float SENSITIVITY = 0.1f;
@@ -40,7 +40,7 @@ public:
     float MouseSensitivity;
     float Zoom;
     Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up =
-            glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3 front = glm::vec3(0.0f, 0.0f, -1.0f),
+            glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3 front = glm::vec3(-1.0f, 0.0f, 0.0f),
             float yaw = YAW, float pitch = PITCH): MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM) {
         Pos = position;
         WorldUp = up;

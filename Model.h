@@ -70,23 +70,33 @@ class TriangleMesh{
     void translate(glm::vec3 pos){
         model = glm::translate(model, pos);
     }
-    void scale(glm::vec3 pos){
-        model = glm::scale(model, glm::vec3(0.2f));
+    void set(glm::mat4 m){
+        model = m;
     }
-    void Render(Shader& shader) {
-        // Связываем соответствующие текстуры
-        shader.use();
-        shader.setFloat("material.shininess", material.shininess);
-        shader.setInt("material.diffuse", 0);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, material.diffuse_map);
+    void scale(glm::vec3 scale){
+        model = glm::scale(model, scale);
+    }
+    void set_base(){
+        model = glm::mat4(1.0f);
+    }
+    void rotate(float angle, glm::vec3 r_vector){
+        model = glm::rotate(model, glm::radians(angle), r_vector);
+    }
+    void Render(Shader& shader, bool maps=true) {
+        if (maps){
+            // Связываем соответствующие текстуры
+            shader.use();
+            shader.setFloat("material.shininess", material.shininess);
+            shader.setInt("material.diffuse", 0);
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, material.diffuse_map);
 
-        shader.setInt("material.specular", 1);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, material.spec_map);
+            shader.setInt("material.specular", 1);
+            glActiveTexture(GL_TEXTURE1);
+            glBindTexture(GL_TEXTURE_2D, material.spec_map);
+        }
         // Передаём матрицу модели
         shader.setMat4("model", model);
-
         // Отрисовываем mesh
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, size);

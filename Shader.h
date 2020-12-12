@@ -32,9 +32,13 @@ string readFile(const string& fileName){
 class Shader {
 public:
     unsigned  int ID;
-    Shader (const char* vertexPath, const char* fragmentPath){
+    Shader (const char* vertexPath, const char* fragmentPath, const char* geomPath = nullptr){
         string vert_str = readFile(vertexPath);
         string frag_str = readFile(fragmentPath);
+        string geom_str;
+        if (geomPath){
+            geom_str = readFile(geomPath);
+        }
 
         //Вершинный шейдер
         unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -59,16 +63,35 @@ public:
             glGetShaderInfoLog(fragmentShader, 512, nullptr, infoLog);
             cout << "fragmentShader: Failed\n" << infoLog<< endl;
         }
+        unsigned int geomShader;
+        if (geomPath){
+            //Геометрический шейдер
+            geomShader = glCreateShader(GL_GEOMETRY_SHADER);
+            src = geom_str.c_str();
+            glShaderSource(geomShader, 1, &src, nullptr);
+            glCompileShader(geomShader);
+            if (!success) {
+                glGetShaderInfoLog(geomShader, 512, nullptr, infoLog);
+                cout << "fragmentShader: Failed\n" << infoLog<< endl;
+            }
+
+        }
 
         //Шейдерная программа
         ID = glCreateProgram();
 
         glAttachShader(ID, vertexShader);
         glAttachShader(ID, fragmentShader);
+        if (geomPath){
+            glAttachShader(ID, geomShader);
+        }
         glLinkProgram(ID);
 
         glDeleteShader(vertexShader);
         glDeleteShader(fragmentShader);
+        if (geomPath){
+            glDeleteShader(geomShader);
+        }
     }
     void use() const {
         glUseProgram(ID);
