@@ -8,6 +8,7 @@
 #include "Model.h"
 
 #define GLEW_STATIC
+
 #include "libs/include/glew.h"
 #include "libs/include/glfw3.h"
 #include "libs/include/SOIL.h"

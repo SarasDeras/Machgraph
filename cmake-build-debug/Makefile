@@ -110,17 +110,17 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named main.cpp
+# Target rules for targets named MashGraph
 
 # Build rule for target.
-main.cpp: cmake_check_build_system
-	$(MAKE) -f CMakeFiles\Makefile2 main.cpp
-.PHONY : main.cpp
+MashGraph: cmake_check_build_system
+	$(MAKE) -f CMakeFiles\Makefile2 MashGraph
+.PHONY : MashGraph
 
 # fast build rule for target.
-main.cpp/fast:
-	$(MAKE) -f CMakeFiles\main.cpp.dir\build.make CMakeFiles/main.cpp.dir/build
-.PHONY : main.cpp/fast
+MashGraph/fast:
+	$(MAKE) -f CMakeFiles\MashGraph.dir\build.make CMakeFiles/MashGraph.dir/build
+.PHONY : MashGraph/fast
 
 main.obj: main.cpp.obj
 
@@ -128,7 +128,7 @@ main.obj: main.cpp.obj
 
 # target to build an object file
 main.cpp.obj:
-	$(MAKE) -f CMakeFiles\main.cpp.dir\build.make CMakeFiles/main.cpp.dir/main.cpp.obj
+	$(MAKE) -f CMakeFiles\MashGraph.dir\build.make CMakeFiles/MashGraph.dir/main.cpp.obj
 .PHONY : main.cpp.obj
 
 main.i: main.cpp.i
@@ -137,7 +137,7 @@ main.i: main.cpp.i
 
 # target to preprocess a source file
 main.cpp.i:
-	$(MAKE) -f CMakeFiles\main.cpp.dir\build.make CMakeFiles/main.cpp.dir/main.cpp.i
+	$(MAKE) -f CMakeFiles\MashGraph.dir\build.make CMakeFiles/MashGraph.dir/main.cpp.i
 .PHONY : main.cpp.i
 
 main.s: main.cpp.s
@@ -146,7 +146,7 @@ main.s: main.cpp.s
 
 # target to generate assembly for a file
 main.cpp.s:
-	$(MAKE) -f CMakeFiles\main.cpp.dir\build.make CMakeFiles/main.cpp.dir/main.cpp.s
+	$(MAKE) -f CMakeFiles\MashGraph.dir\build.make CMakeFiles/MashGraph.dir/main.cpp.s
 .PHONY : main.cpp.s
 
 # Help Target
@@ -155,7 +155,7 @@ help:
 	@echo ... all (the default if no target is provided)
 	@echo ... clean
 	@echo ... depend
-	@echo ... main.cpp
+	@echo ... MashGraph
 	@echo ... edit_cache
 	@echo ... rebuild_cache
 	@echo ... main.obj
