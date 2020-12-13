@@ -11,6 +11,9 @@ in VS_OUT {
 struct Material {
     sampler2D diffuse;
     sampler2D specular;
+    sampler2D normal_map;
+    bool specular_flag;
+    bool normal_map_flag;
     float     shininess;
 };
 
@@ -69,8 +72,8 @@ float ShadowCalculation(vec3 fragPos) {
     return shadow;
 }
 
-void main()
-{
+void main() {
+
     float distance = length(light.position - fs_in.FragPos);
     float attenuation = 1.0 / (light.constant + light.linear * distance +
                 		    light.quadratic * (distance * distance));
@@ -91,9 +94,13 @@ void main()
     vec3 viewDir = normalize(viewPos - fs_in.FragPos);
     vec3 halfwayDir = normalize(lightDir + viewDir);
     float spec =  pow(max(dot(norm, halfwayDir), 0.0), material.shininess);
-    //vec3 specular = light.specular * spec * vec3(1.0f);
 
-    vec3 specular = light.specular  * spec * vec3(texture(material.specular, fs_in.TexCoords));
+    vec3 specular = vec3(0.0f);
+    if (material.specular_flag)
+        specular = light.specular  * spec * vec3(texture(material.specular, fs_in.TexCoords));
+    else
+        specular = light.specular  * spec * vec3(0.5f);
+
 
 
     diffuse  *= attenuation;

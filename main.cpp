@@ -90,8 +90,12 @@ void renderScene(const Shader& shader);
 // настройки
 const unsigned int window_width = 1000;
 const unsigned int window_height = 800;
+// найстроки режимов отображения
 bool shadows = true;
 bool shadowsKeyPressed = false;
+
+bool light_mode = false;
+bool lightKeyPressed = false;
 
 // камера
 Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
@@ -105,6 +109,99 @@ float lastFrame = 0.0f;
 
 // Meshes
 vector<TriangleMesh> objects;
+
+unsigned int quadVAO = 0;
+unsigned int quadVBO;
+void renderQuad() {
+    if (quadVAO == 0)
+    {
+        // координаты
+        glm::vec3 pos1(-1.0f,  1.0f, 0.0f);
+        glm::vec3 pos2(-1.0f, -1.0f, 0.0f);
+        glm::vec3 pos3( 1.0f, -1.0f, 0.0f);
+        glm::vec3 pos4( 1.0f,  1.0f, 0.0f);
+        // текстурные координаты
+        glm::vec2 uv1(0.0f, 1.0f);
+        glm::vec2 uv2(0.0f, 0.0f);
+        glm::vec2 uv3(1.0f, 0.0f);
+        glm::vec2 uv4(1.0f, 1.0f);
+        // векторы нормалей
+        glm::vec3 nm(0.0f, 0.0f, 1.0f);
+
+        // вычисляем касательные/бикасательные векторы обоих треугольников
+        glm::vec3 tangent1, bitangent1;
+        glm::vec3 tangent2, bitangent2;
+        // треугольник 1
+        // ----------
+        glm::vec3 edge1 = pos2 - pos1;
+        glm::vec3 edge2 = pos3 - pos1;
+        glm::vec2 deltaUV1 = uv2 - uv1;
+        glm::vec2 deltaUV2 = uv3 - uv1;
+
+        float f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+        tangent1.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+        tangent1.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+        tangent1.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+        tangent1 = glm::normalize(tangent1);
+
+        bitangent1.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+        bitangent1.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+        bitangent1.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+        bitangent1 = glm::normalize(bitangent1);
+
+        // треугольник 2
+        // ----------
+        edge1 = pos3 - pos1;
+        edge2 = pos4 - pos1;
+        deltaUV1 = uv3 - uv1;
+        deltaUV2 = uv4 - uv1;
+
+        f = 1.0f / (deltaUV1.x * deltaUV2.y - deltaUV2.x * deltaUV1.y);
+
+        tangent2.x = f * (deltaUV2.y * edge1.x - deltaUV1.y * edge2.x);
+        tangent2.y = f * (deltaUV2.y * edge1.y - deltaUV1.y * edge2.y);
+        tangent2.z = f * (deltaUV2.y * edge1.z - deltaUV1.y * edge2.z);
+        tangent2 = glm::normalize(tangent2);
+
+
+        bitangent2.x = f * (-deltaUV2.x * edge1.x + deltaUV1.x * edge2.x);
+        bitangent2.y = f * (-deltaUV2.x * edge1.y + deltaUV1.x * edge2.y);
+        bitangent2.z = f * (-deltaUV2.x * edge1.z + deltaUV1.x * edge2.z);
+        bitangent2 = glm::normalize(bitangent2);
+
+
+        float quadVertices[] = {
+                // координаты            // нормали      // текст. коорд.  // касательные                         // бикасательные
+                pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+                pos2.x, pos2.y, pos2.z, nm.x, nm.y, nm.z, uv2.x, uv2.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+                pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent1.x, tangent1.y, tangent1.z, bitangent1.x, bitangent1.y, bitangent1.z,
+
+                pos1.x, pos1.y, pos1.z, nm.x, nm.y, nm.z, uv1.x, uv1.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
+                pos3.x, pos3.y, pos3.z, nm.x, nm.y, nm.z, uv3.x, uv3.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z,
+                pos4.x, pos4.y, pos4.z, nm.x, nm.y, nm.z, uv4.x, uv4.y, tangent2.x, tangent2.y, tangent2.z, bitangent2.x, bitangent2.y, bitangent2.z
+        };
+        // конфигурируем VAO плоскости
+        glGenVertexArrays(1, &quadVAO);
+        glGenBuffers(1, &quadVBO);
+        glBindVertexArray(quadVAO);
+        glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+        glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)0);
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(3 * sizeof(float)));
+        glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(6 * sizeof(float)));
+        glEnableVertexAttribArray(3);
+        glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(8 * sizeof(float)));
+        glEnableVertexAttribArray(4);
+        glVertexAttribPointer(4, 3, GL_FLOAT, GL_FALSE, 14 * sizeof(float), (void*)(11 * sizeof(float)));
+    }
+    glBindVertexArray(quadVAO);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+    glBindVertexArray(0);
+}
 
 int main() {
     //Инициализация GLFW
@@ -150,6 +247,7 @@ int main() {
     Shader light_cube(R"(..\shaders\light.vs)", R"(..\shaders\light.fs)");
     Shader skybox_shader(R"(..\shaders\skybox.vs)", R"(..\shaders\skybox.fs)");
     Shader depthShader(R"(..\shaders\depth.vs)", R"(..\shaders\depth.fs)", R"(..\shaders\depth.gs)");
+    Shader parallax_shader(R"(..\shaders\parallax.vs)", R"(..\shaders\parallax.fs)");
 
     //Примитивы
     float vertices[] = {
@@ -240,8 +338,12 @@ int main() {
     // Загрузка текстур
     unsigned int cube_diffuse = load_texture(R"(..\textures\box.png)");
     unsigned int cube_spec = load_texture(R"(..\textures\box_specular.png)", false);
-    unsigned int floor_all = load_texture(R"(..\textures\floor.jpg)");
+    unsigned int floor_diffuse = load_texture(R"(..\textures\floor.jpg)");
     unsigned int woodTexture = load_texture(R"(..\textures\wood.png)");
+    unsigned int par_diffuse = load_texture(R"(..\textures\bricks2.jpg)");
+    unsigned int par_normal  = load_texture(R"(..\textures\bricks2_normal.jpg)", false);
+    unsigned int par_height  = load_texture(R"(..\textures\bricks2_disp.jpg)", false);
+
 
     vector<string> faces = {
             "right.jpg",
@@ -253,40 +355,52 @@ int main() {
     };
 
     vector<glm::vec3> cubes_info = {
-            glm::vec3(4.0f, -3.5f, 0.0), glm::vec3(0.5f),
-            glm::vec3(2.0f, 3.0f, 1.0), glm::vec3(0.75f),
+            //glm::vec3(4.0f, -3.5f, 0.0), glm::vec3(0.5f),
+            glm::vec3(2.0f, 2.0f, 0.5), glm::vec3(0.75f),
             glm::vec3(-3.0f, -1.0f, 0.0), glm::vec3(0.5f),
-            glm::vec3(-1.5f, 1.0f, 1.5), glm::vec3(0.5f),
-            glm::vec3(-1.5f, 2.0f, -4.0), glm::vec3(0.75f),
+            //glm::vec3(-1.5f, 1.0f, 1.5), glm::vec3(0.5f),
+            glm::vec3(-1.5f, 1.0f, -4.0), glm::vec3(0.75f),
     };
 
 
     //Созданние mesheй
-    TriangleMesh cube(vertices, sizeof(vertices), woodTexture, woodTexture);
-    TriangleMesh light(vertices, sizeof(vertices), cube_diffuse, cube_spec);
-    TriangleMesh floor(vertices, sizeof(vertices), floor_all, floor_all, 64.0f);
-    TriangleMesh big_cube(vertices, sizeof(vertices), cube_diffuse, cube_spec);
+    TriangleMesh light(vertices, sizeof(vertices), cube_diffuse);
+    TriangleMesh floor(vertices, sizeof(vertices), floor_diffuse);
+    TriangleMesh wall(vertices, sizeof(vertices), woodTexture);
+    TriangleMesh wall2(vertices, sizeof(vertices), woodTexture);
 
     for (int i = 0; i < cubes_info.size(); i += 2){
-        TriangleMesh cube_default(vertices, sizeof(vertices), woodTexture, woodTexture);
+        TriangleMesh cube_default(vertices, sizeof(vertices), cube_diffuse, cube_spec);
         cube_default.translate(cubes_info[i]);
-        if (i == 4){
-            cube_default.rotate(60.0f, glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-        }
         cube_default.scale(cubes_info[i + 1]);
         objects.push_back(cube_default);
     }
     // Нормализация текстур
-    int scale_floor = 16;
+    int scale_floor = 8;
     for (int i = 0; i < 36; ++i){
         floor.vertices[i * 8 + 6] *= (float) scale_floor;
         floor.vertices[i * 8 + 7] *= (float) scale_floor;
     }
-    floor.translate(glm::vec3(0.0f, -4.5f, 0.0f));
+    // Нормализация текстур
+    int scale_wall = 4;
+    for (int i = 0; i < 36; ++i){
+        wall.vertices[i * 8 + 6] *= (float) scale_wall;
+        wall.vertices[i * 8 + 7] *= (float) scale_wall;
+        wall2.vertices[i * 8 + 6] *= (float) scale_wall;
+        wall2.vertices[i * 8 + 7] *= (float) scale_wall;
+    }
+    floor.translate(glm::vec3(0.0f, -4.0f, 0.0f));
     floor.scale(glm::vec3((float) scale_floor, 0.1f, (float) scale_floor));
     objects.push_back(floor);
-    floor.translate(glm::vec3(0.0f, 9.0f * (1 / 0.1f), 0.0f));
+    floor.translate(glm::vec3(0.0f, 8.0f * (1 / 0.1f), 0.0f));
     objects.push_back(floor);
+    wall.translate(glm::vec3(8.0f, 0.0f, -0.0f));
+    wall.scale(glm::vec3(0.1f, (float) scale_wall , 2 * (float) scale_wall));
+    objects.push_back(wall);
+    wall2.translate(glm::vec3(0.0f, 0.0f, -8.0f));
+    wall2.rotate(90.f,glm::vec3(0.0f, 1.0f, 0.0f));
+    wall2.scale(glm::vec3(0.1f, (float) scale_wall , 2 * (float) scale_wall));
+    objects.push_back(wall2);
 
     // Настройки skybox
     skybox_shader.use();
@@ -335,21 +449,24 @@ int main() {
     shader.setInt("depthMap", 10);
      */
     // Параметры света
-    glm::vec3 lightPos(0.0f, 0.0f, 0.0f);
+    glm::vec3 lightPos(0.0f, 0.0f, 2.0f);
     shader.use();
-    shader.setInt("material.diffuse", 0);
-    shader.setInt("material.specular", 1);
-    shader.setFloat("material.shininess", 64.0f);
     shader.setInt("depthMap", 10);
 
     // Точечный источник света
     shader.use();
     shader.setVec3("light.ambient",  glm::vec3(0.10f, 0.10f, 0.10f));
     shader.setVec3("light.diffuse",  glm::vec3(0.5f, 0.5f, 0.5f));
-    shader.setVec3("light.specular", glm::vec3(0.5f, 0.5f, 0.5f));
+    shader.setVec3("light.specular", glm::vec3(1.0f, 1.0f, 1.0f));
     shader.setFloat("light.constant",  1.0f);
     shader.setFloat("light.linear",    0.07f);
     shader.setFloat("light.quadratic", 0.017f);
+
+    // Конфигурация шейдеров
+    parallax_shader.use();
+    parallax_shader.setInt("diffuseMap", 4);
+    parallax_shader.setInt("normalMap", 5);
+    parallax_shader.setInt("depthMap", 6);
 
     // Игровой цикл
     while (!glfwWindowShouldClose(window))
@@ -363,7 +480,7 @@ int main() {
         processInput(window);
 
         // изменение позиции источника света с течением времени
-        lightPos.z = sin(glfwGetTime() * 0.5) * 3.0;
+        lightPos.x = sin(glfwGetTime() * 0.5) * 3.0;
 
         // Очистка буферов
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
@@ -380,6 +497,17 @@ int main() {
         shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, -1.0f, 0.0f), glm::vec3(0.0f, 0.0f, -1.0f)));
         shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
         shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
+
+        // Перемещение кубов
+        objects[0].set_base();
+        objects[0].translate(cubes_info[0] + glm::vec3(sin(glfwGetTime()) * 2, 0, 0));
+        objects[0].scale(cubes_info[1]);
+
+        objects[1].rotate(deltaTime * 100, glm::normalize(glm::vec3(1.0, 1.0, 0.0)));
+
+        objects[2].set_base();
+        objects[2].translate(cubes_info[4] + glm::vec3(0.0f, cos(glfwGetTime()) * 2, 0.0));
+        objects[2].scale(cubes_info[5]);
 
         // Рендеринг в карту глубины
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
@@ -411,13 +539,47 @@ int main() {
         shader.setVec3("viewPos", camera.Pos);
         shader.setInt("shadows", shadows); // "Пробел" включает/отключает тени
         shader.setFloat("far_plane", far_plane);
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, woodTexture);
-        glActiveTexture(GL_TEXTURE1);
-        glBindTexture(GL_TEXTURE_2D, woodTexture);
         glActiveTexture(GL_TEXTURE10);
         glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
         renderScene(shader);
+
+        view = camera.GetViewMatrix();
+        projection = glm::perspective(glm::radians(camera.Zoom), (float)window_width / (float)window_height, 0.1f, 100.0f);
+        parallax_shader.use();
+        parallax_shader.setMat4("projection", projection);
+        parallax_shader.setMat4("view", view);
+
+        // рендеринг прямоугольника с параллакс-эффектом
+        glm::mat4 model = glm::mat4(1.0f);
+        model = glm::translate(model, glm::vec3(0.0f, -1.0f, 7.0f));
+        model =  glm::rotate(model, glm::radians(180.f), glm::vec3(0.0f, 1.0f, 0.0f));
+        model = glm::scale(model, glm::vec3(2.0f));
+        parallax_shader.setMat4("model", model);
+        parallax_shader.setVec3("viewPos", camera.Pos);
+        parallax_shader.setVec3("lightPos", lightPos);
+        float heightScale = 0.1;
+        parallax_shader.setFloat("heightScale", heightScale); // изменение значений кнопками Q и E
+        //std::cout << heightScale << std::endl;
+        glActiveTexture(GL_TEXTURE4);
+        glBindTexture(GL_TEXTURE_2D, par_diffuse);
+        glActiveTexture(GL_TEXTURE5);
+        glBindTexture(GL_TEXTURE_2D, par_normal);
+        glActiveTexture(GL_TEXTURE6);
+        glBindTexture(GL_TEXTURE_2D, par_height);
+        glDisable(GL_CULL_FACE);
+        renderQuad();
+        glEnable(GL_CULL_FACE);
+
+        // Отображение источника света
+        if (light_mode){
+            light_cube.use();
+            light.set_base();
+            light.translate(lightPos);
+            light.scale(glm::vec3(0.05f));
+            light_cube.setMat4("projection", projection);
+            light_cube.setMat4("view", view);
+            light.Render(light_cube);
+        }
 
         //Рендеринг скайбокса
         glDepthFunc(GL_LEQUAL);
@@ -443,8 +605,6 @@ int main() {
     return 0;
 }
 
-unsigned int cubeVAO = 0;
-unsigned int cubeVBO = 0;
 
 
 void renderScene(const Shader& shader) {
@@ -478,14 +638,19 @@ void processInput(GLFWwindow* window) {
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.key_callback(RIGHT, deltaTime);
 
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !shadowsKeyPressed)
-    {
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && !shadowsKeyPressed) {
         shadows = !shadows;
         shadowsKeyPressed = true;
     }
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
-    {
+    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_PRESS && !lightKeyPressed) {
+        light_mode = !light_mode;
+        lightKeyPressed = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
         shadowsKeyPressed = false;
+    }
+    if (glfwGetKey(window, GLFW_KEY_B) == GLFW_RELEASE) {
+        lightKeyPressed = false;
     }
 }
 
