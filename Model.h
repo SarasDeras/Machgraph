@@ -49,12 +49,12 @@ struct Texture {
 class TriangleMesh{
     public:
     float* vertices;
-    int size;
+    unsigned int size;
     Material material;
     unsigned int VAO;
     glm::mat4 model;
 
-    TriangleMesh(float* vertices, int size, unsigned int diffuse_map, unsigned int spec_map, float shininess = 32.0f) {
+    TriangleMesh(float* vertices, unsigned int size, unsigned int diffuse_map, unsigned int spec_map, float shininess = 64.0f) {
         this->vertices = vertices;
         this->material.diffuse_map = diffuse_map;
         this->material.spec_map = spec_map;
@@ -62,10 +62,6 @@ class TriangleMesh{
         this->size = size;
         model = glm::mat4(1.0f);
         setupMesh();
-    }
-    ~TriangleMesh(){
-        glDeleteVertexArrays(1, &VAO);
-        glDeleteBuffers(1, &VBO);
     }
     void translate(glm::vec3 pos){
         model = glm::translate(model, pos);
@@ -82,10 +78,10 @@ class TriangleMesh{
     void rotate(float angle, glm::vec3 r_vector){
         model = glm::rotate(model, glm::radians(angle), r_vector);
     }
-    void Render(Shader& shader, bool maps=true) {
+    void Render(const Shader& shader, bool maps=true) const {
+        shader.use();
         if (maps){
             // Связываем соответствующие текстуры
-            shader.use();
             shader.setFloat("material.shininess", material.shininess);
             shader.setInt("material.diffuse", 0);
             glActiveTexture(GL_TEXTURE0);
@@ -114,28 +110,27 @@ private:
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);
 
-        glBindVertexArray(VAO);
-
         // Загружаем данные в вершинный буфер
         glBindBuffer(GL_ARRAY_BUFFER, VBO);
-
         glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
         /*
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
         */
+        glBindVertexArray(VAO);
         // Атрибут с координатами
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*) 0);
         glEnableVertexAttribArray(0);
-        // Тексутры
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*) (3 * sizeof(GLfloat)));
-        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
         // Нормали
-        glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*) (5 * sizeof(GLfloat)));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+        // Тексутры
         glEnableVertexAttribArray(2);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
         glBindVertexArray(0);
     }
-
 
 };
 

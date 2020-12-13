@@ -35,6 +35,23 @@ uniform vec3 viewPos;
 uniform float far_plane;
 uniform bool shadows;
 
+float PCF(float bias, float samples, float offset, vec3 fragToLight){
+    float shadow = 0.0;
+    float currentDepth = length(fragToLight);
+    for(float x = -offset; x < offset; x += offset / (samples * 0.5)) {
+            for(float y = -offset; y < offset; y += offset / (samples * 0.5)) {
+                for(float z = -offset; z < offset; z += offset / (samples * 0.5)) {
+                    float closestDepth = texture(depthMap, fragToLight + vec3(x, y, z)).r;
+                    closestDepth *= far_plane;
+                    if (currentDepth - bias > closestDepth)
+                        shadow += 1.0;
+                }
+            }
+        }
+    shadow /= (samples * samples * samples);
+    return shadow;
+}
+
 float ShadowCalculation(vec3 fragPos) {
     // получаем вектор между положением фрагмента и положением источника света
     vec3 fragToLight = fragPos - light.position;
@@ -46,20 +63,9 @@ float ShadowCalculation(vec3 fragPos) {
     float currentDepth = length(fragToLight);
     // теперь проводим проверку на нахождение в тени
     float bias = 0.05;
-    float shadow  = 0.0;
     float samples = 4.0;
-    float offset  = 0.1;
-    for(float x = -offset; x < offset; x += offset / (samples * 0.5)) {
-        for(float y = -offset; y < offset; y += offset / (samples * 0.5)) {
-            for(float z = -offset; z < offset; z += offset / (samples * 0.5)) {
-                float closestDepth = texture(depthMap, fragToLight + vec3(x, y, z)).r;
-                closestDepth *= far_plane;
-                if(currentDepth - bias > closestDepth)
-                    shadow += 1.0;
-            }
-        }
-    }
-    shadow /= (samples * samples * samples);
+    float offset  = 0.05;
+    float shadow = PCF(bias, samples, offset, fragToLight);
     return shadow;
 }
 

@@ -562,6 +562,9 @@ bool firstMouse = true;
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
+// Meshes
+vector<TriangleMesh> objects;
+
 int main() {
     //Инициализация GLFW
     glfwInit();
@@ -611,44 +614,50 @@ int main() {
     Shader simpleDepthShader("../3.2.1.point_shadows_depth.vs", "../3.2.1.point_shadows_depth.fs", "../3.2.1.point_shadows_depth.gs");
 
     //Примитивы
-    GLfloat vertices[] = {
-            // Координаты         // Текстуры  // Нормали
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 0.0f,  0.0f,  0.0f, -1.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  0.0f, -1.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  0.0f,  0.0f, -1.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f,  0.0f,  0.0f, -1.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 0.0f,  0.0f,  0.0f, -1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f,  0.0f,  0.0f,  1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 1.0f,  0.0f,  0.0f,  1.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 1.0f,  0.0f,  0.0f,  1.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  0.0f,  0.0f,  1.0f,
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
-            -0.5f,  0.5f, -0.5f,  1.0f, 1.0f, -1.0f,  0.0f,  0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, -1.0f,  0.0f,  0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, -1.0f,  0.0f,  0.0f,
-            -0.5f,  0.5f,  0.5f,  1.0f, 0.0f, -1.0f,  0.0f,  0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-            0.5f, -0.5f, -0.5f,  0.0f, 1.0f,  1.0f,  0.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  0.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f,  1.0f,  0.0f,  0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, -1.0f,  0.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f, -1.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f, -1.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f, -1.0f,  0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f, -1.0f,  0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, -1.0f,  0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f,  0.0f,
-            0.5f,  0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  1.0f,  0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  1.0f,  0.0f,
-            0.5f,  0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  1.0f,  0.0f,
-            -0.5f,  0.5f,  0.5f,  0.0f, 0.0f, 0.0f,  1.0f,  0.0f,
-            -0.5f,  0.5f, -0.5f,  0.0f, 1.0f, 0.0f,  1.0f,  0.0f
+    float vertices[] = {
+            //
+            // задняя грань
+            -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // нижняя-левая
+            1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // верхняя-правая
+            1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 0.0f, // нижняя-правая
+            1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 1.0f, 1.0f, // верхняя-правая
+            -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 0.0f, // нижняя-левая
+            -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, -1.0f, 0.0f, 1.0f, // верхняя-левая
+            // передняя грань
+            -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // нижняя-левая
+            1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 0.0f, // нижняя-правая
+            1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // верхняя-правая
+            1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 1.0f, 1.0f, // верхняя-правая
+            -1.0f,  1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 1.0f, // верхняя-левая
+            -1.0f, -1.0f,  1.0f,  0.0f,  0.0f,  1.0f, 0.0f, 0.0f, // нижняя-левая
+            // грань слева
+            -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // верхняя-правая
+            -1.0f,  1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // верхняя-левая
+            -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // нижняя-левая
+            -1.0f, -1.0f, -1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // нижняя-левая
+            -1.0f, -1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // нижняя-правая
+            -1.0f,  1.0f,  1.0f, -1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // верхняя-правая
+            // грань справа
+            1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // верхняя-левая
+            1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // нижняя-правая
+            1.0f,  1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 1.0f, // верхняя-правая
+            1.0f, -1.0f, -1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 1.0f, // нижняя-правая
+            1.0f,  1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 1.0f, 0.0f, // верхняя-левая
+            1.0f, -1.0f,  1.0f,  1.0f,  0.0f,  0.0f, 0.0f, 0.0f, // нижняя-левая
+            // нижняя грань
+            -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // верхняя-правая
+            1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 1.0f, // верхняя-левая
+            1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // нижняя-левая
+            1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 1.0f, 0.0f, // нижняя-левая
+            -1.0f, -1.0f,  1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 0.0f, // нижняя-правая
+            -1.0f, -1.0f, -1.0f,  0.0f, -1.0f,  0.0f, 0.0f, 1.0f, // верхняя-правая
+            // верхняя грань
+            -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // верхняя-левая
+            1.0f,  1.0f , 1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // нижняя-правая
+            1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 1.0f, // верхняя-правая
+            1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 1.0f, 0.0f, // нижняя-правая
+            -1.0f,  1.0f, -1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f, // верхняя-левая
+            -1.0f,  1.0f,  1.0f,  0.0f,  1.0f,  0.0f, 0.0f, 0.0f  // нижняя-левая
     };
 
     float skyboxVertices[] = {
@@ -690,16 +699,6 @@ int main() {
             -1.0f, -1.0f,  1.0f,
             1.0f, -1.0f,  1.0f
     };
-
-    float floor_v[] = {
-            // Координаты         // Текстуры  // Нормали
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, 1.0f,  0.0f,
-            0.5f, -0.5f, -0.5f,  1.0f, 1.0f, 0.0f,  1.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  1.0f,  0.0f,
-            0.5f, -0.5f,  0.5f,  1.0f, 0.0f, 0.0f,  1.0f,  0.0f,
-            -0.5f, -0.5f,  0.5f,  0.0f, 0.0f, 0.0f, 1.0f,  0.0f,
-            -0.5f, -0.5f, -0.5f,  0.0f, 1.0f, 0.0f, 1.0f,  0.0f,
-    };
     // Загрузка текстур
     unsigned int cube_diffuse = load_texture(R"(..\textures\box.png)");
     unsigned int cube_spec = load_texture(R"(..\textures\box_specular.png)", false);
@@ -714,29 +713,44 @@ int main() {
             "front.jpg",
             "back.jpg"
     };
-    unsigned int skybox_texture = load_cubetexture(R"(..\textures\skybox)", faces, false);
-    int scale_floor = 20;
-    for (int i = 0; i < 6; ++i){
-        floor_v[i * 8 + 3] *= (float) scale_floor;
-        floor_v[i * 8 + 4] *= (float) scale_floor;
-    }
-    float cubes_pos[] = {
-            0.0f, 1.75f, 1.25f,
-            0.0f, 0.5f, 3.25f,
+
+    vector<glm::vec3> cubes_info = {
+            glm::vec3(4.0f, -3.5f, 0.0), glm::vec3(0.5f),
+            glm::vec3(2.0f, 3.0f, 1.0), glm::vec3(0.75f),
+            glm::vec3(-3.0f, -1.0f, 0.0), glm::vec3(0.5f),
+            glm::vec3(-1.5f, 1.0f, 1.5), glm::vec3(0.5f),
+            glm::vec3(-1.5f, 2.0f, -4.0), glm::vec3(0.75f),
     };
-    int cubs_count = sizeof(cubes_pos) / (3 *  sizeof(cubes_pos[0]));
+
 
     //Созданние mesheй
-    TriangleMesh cube(vertices, sizeof(vertices), cube_diffuse, cube_spec);
+    TriangleMesh cube(vertices, sizeof(vertices), woodTexture, woodTexture);
     TriangleMesh light(vertices, sizeof(vertices), cube_diffuse, cube_spec);
-    TriangleMesh floor(floor_v, sizeof(floor_v), floor_all, floor_all, 48);
+    TriangleMesh floor(vertices, sizeof(vertices), floor_all, floor_all, 64.0f);
     TriangleMesh big_cube(vertices, sizeof(vertices), cube_diffuse, cube_spec);
 
-
-    floor.scale(glm::vec3((float) scale_floor));
-    floor.translate(glm::vec3(0.0f, 0.5f, 0.0f));
+    for (int i = 0; i < cubes_info.size(); ++i){
+        TriangleMesh cube_default(vertices, sizeof(vertices), woodTexture, woodTexture);
+        cube_default.translate(cubes_info[2 * i]);
+        if (i == 4){
+            cube_default.rotate(60.0f, glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
+        }
+        cube_default.scale(cubes_info[2 * i + 1]);
+        objects.push_back(cube_default);
+    }
+    // Нормализация текстур
+    int scale_floor = 8;
+    for (int i = 0; i < 36; ++i){
+        floor.vertices[i * 8 + 6] *= (float) scale_floor;
+        floor.vertices[i * 8 + 7] *= (float) scale_floor;
+    }
+    floor.translate(glm::vec3(0.0f, -4.5f, 0.0f));
+    floor.scale(glm::vec3((float) scale_floor, 0.1f, (float) scale_floor));
+    objects.push_back(floor);
 
     // Настройки skybox
+    skybox_shader.use();
+    unsigned int skybox_texture = load_cubetexture(R"(..\textures\skybox)", faces, false);
     skybox_shader.setInt("skybox", 9);
 
     // VAO скайбокса
@@ -790,7 +804,7 @@ int main() {
 
     // Точечный источник света
     shader.use();
-    shader.setVec3("light.ambient",  glm::vec3(0.15f, 0.15f, 0.15f));
+    shader.setVec3("light.ambient",  glm::vec3(0.10f, 0.10f, 0.10f));
     shader.setVec3("light.diffuse",  glm::vec3(0.5f, 0.5f, 0.5f));
     shader.setVec3("light.specular", glm::vec3(0.5f, 0.5f, 0.5f));
     shader.setFloat("light.constant",  1.0f);
@@ -800,26 +814,22 @@ int main() {
     // Игровой цикл
     while (!glfwWindowShouldClose(window))
     {
-        // логическая часть работы со временем для каждого кадра
-        // --------------------
+        // Обработка времени
         float currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
-        // обработка ввода
-        // -----
+        // Обработка ввода
         processInput(window);
 
         // изменение позиции источника света с течением времени
-        //lightPos.z = sin(glfwGetTime() * 0.5) * 3.0;
+        lightPos.z = sin(glfwGetTime() * 0.5) * 3.0;
 
-        // рендер
-        // ------
+        // Очистка буферов
         glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // 0. создаём матрицы трансформации кубической карты глубины
-        // -----------------------------------------------
+        // Создаём матрицы трансформации кубической карты глубины
         float near_plane = 1.0f;
         float far_plane = 25.0f;
         glm::mat4 shadowProj = glm::perspective(glm::radians(90.0f), (float)SHADOW_WIDTH / (float)SHADOW_HEIGHT, near_plane, far_plane);
@@ -831,8 +841,7 @@ int main() {
         shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
         shadowTransforms.push_back(shadowProj * glm::lookAt(lightPos, lightPos + glm::vec3(0.0f, 0.0f, -1.0f), glm::vec3(0.0f, -1.0f, 0.0f)));
 
-        // 1. рендерим сцену в кубическую карту глубины
-        // --------------------------------
+        // Рендеринг в карту глубины
         glViewport(0, 0, SHADOW_WIDTH, SHADOW_HEIGHT);
         glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
         glClear(GL_DEPTH_BUFFER_BIT);
@@ -844,13 +853,17 @@ int main() {
         renderScene(simpleDepthShader);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
-        // 2. рендерим сцену как обычно
-        // -------------------------
+        // Обычный рендеринг
         glViewport(0, 0, window_width, window_height);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        // Матрицы связанные с камерой
+        glm::mat4 view, projection;
+
+        view = camera.GetViewMatrix();
+        projection = glm::perspective(glm::radians(camera.Zoom), (float)window_width / (float)window_height, 0.1f, 100.0f);
+
         shader.use();
-        glm::mat4 projection = glm::perspective(glm::radians(camera.Zoom), (float)window_width / (float)window_height, 0.1f, 100.0f);
-        glm::mat4 view = camera.GetViewMatrix();
         shader.setMat4("projection", projection);
         shader.setMat4("view", view);
         // устанавливаем uniform-переменные освещения
@@ -866,8 +879,22 @@ int main() {
         glBindTexture(GL_TEXTURE_CUBE_MAP, depthCubemap);
         renderScene(shader);
 
-        // glfw: обмен содержимым переднего и заднего буферов. Опрос событий Ввода\Ввывода (была ли нажата/отпущена кнопка, перемещен курсор мыши и т.п.)
-        // -------------------------------------------------------------------------------
+        //Рендеринг скайбокса
+        glDepthFunc(GL_LEQUAL);
+        view = glm::mat4(glm::mat3(view));
+
+        skybox_shader.use();
+        skybox_shader.setMat4("view", view);
+        skybox_shader.setMat4("projection", projection);
+
+        glBindVertexArray(skyboxVAO);
+        glActiveTexture(GL_TEXTURE9);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, skybox_texture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+        glDepthFunc(GL_LESS);
+
+        // Отрисовка
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
@@ -876,13 +903,14 @@ int main() {
     return 0;
 }
 
-// рендерим 3D-сцену
-// --------------------
-void renderScene(const Shader& shader)
-{
+unsigned int cubeVAO = 0;
+unsigned int cubeVBO = 0;
+
+
+void renderScene(const Shader& shader) {
+    /*
     // комната
     glm::mat4 model = glm::mat4(1.0f);
-
     model = glm::scale(model, glm::vec3(5.0f));
     shader.setMat4("model", model);
     glDisable(GL_CULL_FACE); // обратите внимание, что здесь мы отключаем отсечение граней, т.к. рендерим "внутри" комнаты, а не "снаружи" (в обычном варианте)
@@ -890,40 +918,15 @@ void renderScene(const Shader& shader)
     renderCube();
     shader.setInt("reverse_normals", 0); // ну а теперь отключаем инвертирование нормалей
     glEnable(GL_CULL_FACE);
-
-    // ящики
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(4.0f, -3.5f, 0.0));
-    model = glm::scale(model, glm::vec3(0.5f));
-    shader.setMat4("model", model);
-    renderCube();
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(2.0f, 3.0f, 1.0));
-    model = glm::scale(model, glm::vec3(0.75f));
-    shader.setMat4("model", model);
-    renderCube();
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(-3.0f, -1.0f, 0.0));
-    model = glm::scale(model, glm::vec3(0.5f));
-    shader.setMat4("model", model);
-    renderCube();
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(-1.5f, 1.0f, 1.5));
-    model = glm::scale(model, glm::vec3(0.5f));
-    shader.setMat4("model", model);
-    renderCube();
-    model = glm::mat4(1.0f);
-    model = glm::translate(model, glm::vec3(-1.5f, 2.0f, -3.0));
-    model = glm::rotate(model, glm::radians(60.0f), glm::normalize(glm::vec3(1.0, 0.0, 1.0)));
-    model = glm::scale(model, glm::vec3(0.75f));
-    shader.setMat4("model", model);
-    renderCube();
+    */
+    for (int i = 0; i < objects.size(); ++i){
+        objects[i].Render(shader);
+    }
 }
 
 // renderCube() рендерит 1x1 3D-ящик в NDC.
 // -------------------------------------------------
-unsigned int cubeVAO = 0;
-unsigned int cubeVBO = 0;
+
 void renderCube()
 {
     // инициализация (если необходимо)
@@ -1022,17 +1025,13 @@ void processInput(GLFWwindow* window)
     }
 }
 
-// glfw: всякий раз, когда изменяются размеры окна (пользователем или опер. системой), вызывается данная функция
-// ---------------------------------------------------------------------------------------------
-void framebuffer_size_callback(GLFWwindow* window, int width, int height)
-{
-    // убеждаемся, что вьюпорт соответствует новым размерам окна; обратите внимание,
-    // что ширина и высота будут значительно больше, чем указано на retina -дисплеях.
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height) {
+
     glViewport(0, 0, width, height);
 }
 
-// glfw: всякий раз, когда перемещается мышь, вызывается данная callback-функция
-// -------------------------------------------------------
+
 void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 {
     if (firstMouse)
@@ -1051,8 +1050,6 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
     camera.mouse_callback(xoffset, yoffset);
 }
 
-// glfw: всякий раз, когда прокручивается колесико мыши, вызывается данная callback-функция
-// ----------------------------------------------------------------------
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
     camera.scroll_callback(xoffset, yoffset);
