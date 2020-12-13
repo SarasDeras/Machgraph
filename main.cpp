@@ -1,6 +1,5 @@
 #include <iostream>
 #include <string>
-#include <fstream>
 #include <sstream>
 #include <cmath>
 
@@ -12,10 +11,6 @@
 #include "libs/include/glew.h"
 #include "libs/include/glfw3.h"
 #include "libs/include/SOIL.h"
-
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>

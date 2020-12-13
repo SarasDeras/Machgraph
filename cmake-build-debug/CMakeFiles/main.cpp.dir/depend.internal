@@ -25,7 +25,6 @@ CMakeFiles/main.cpp.dir/main.cpp.obj
  ../libs/include/assimp/metadata.h
  ../libs/include/assimp/postprocess.h
  ../libs/include/assimp/quaternion.h
- ../libs/include/assimp/quaternion.inl
  ../libs/include/assimp/scene.h
  ../libs/include/assimp/texture.h
  ../libs/include/assimp/types.h
@@ -200,9 +199,13 @@ CMakeFiles/main.cpp.dir/main.cpp.obj
  ../libs/include/glm/glm.hpp
  ../libs/include/glm/gtc/constants.hpp
  ../libs/include/glm/gtc/constants.inl
+ ../libs/include/glm/gtc/epsilon.hpp
+ ../libs/include/glm/gtc/epsilon.inl
  ../libs/include/glm/gtc/matrix_transform.hpp
  ../libs/include/glm/gtc/matrix_transform.inl
  ../libs/include/glm/gtc/quaternion.hpp
+ ../libs/include/glm/gtc/quaternion.inl
+ ../libs/include/glm/gtc/quaternion_simd.inl
  ../libs/include/glm/gtc/type_ptr.hpp
  ../libs/include/glm/gtc/type_ptr.inl
  ../libs/include/glm/gtc/vec1.hpp

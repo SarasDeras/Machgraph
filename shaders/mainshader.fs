@@ -99,7 +99,7 @@ void main() {
     if (material.specular_flag)
         specular = light.specular  * spec * vec3(texture(material.specular, fs_in.TexCoords));
     else
-        specular = light.specular  * spec * vec3(0.5f);
+        specular = light.specular  * spec * vec3(0.2f);
 
 
 

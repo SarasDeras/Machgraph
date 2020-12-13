@@ -24,7 +24,6 @@ CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/assimp/mesh.h
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/assimp/metadata.h
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/assimp/postprocess.h
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/assimp/quaternion.h
-CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/assimp/quaternion.inl
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/assimp/scene.h
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/assimp/texture.h
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/assimp/types.h
@@ -199,9 +198,13 @@ CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/geometric.hpp
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/glm.hpp
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/gtc/constants.hpp
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/gtc/constants.inl
+CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/gtc/epsilon.hpp
+CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/gtc/epsilon.inl
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/gtc/matrix_transform.hpp
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/gtc/matrix_transform.inl
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/gtc/quaternion.hpp
+CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/gtc/quaternion.inl
+CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/gtc/quaternion_simd.inl
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/gtc/type_ptr.hpp
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/gtc/type_ptr.inl
 CMakeFiles/main.cpp.dir/main.cpp.obj: ../libs/include/glm/gtc/vec1.hpp

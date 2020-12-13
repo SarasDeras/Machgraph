@@ -142,12 +142,6 @@ types.h
 defs.h
 ../libs/include/assimp/defs.h
 
-../libs/include/assimp/quaternion.inl
-quaternion.h
-../libs/include/assimp/quaternion.h
-cmath
--
-
 ../libs/include/assimp/scene.h
 types.h
 ../libs/include/assimp/types.h
@@ -1230,6 +1224,20 @@ constants.inl
 
 ../libs/include/glm/gtc/constants.inl
 
+../libs/include/glm/gtc/epsilon.hpp
+../detail/setup.hpp
+../libs/include/glm/detail/setup.hpp
+../detail/qualifier.hpp
+../libs/include/glm/detail/qualifier.hpp
+epsilon.inl
+../libs/include/glm/gtc/epsilon.inl
+
+../libs/include/glm/gtc/epsilon.inl
+../vector_relational.hpp
+../libs/include/glm/vector_relational.hpp
+../common.hpp
+../libs/include/glm/common.hpp
+
 ../libs/include/glm/gtc/matrix_transform.hpp
 ../mat4x4.hpp
 ../libs/include/glm/mat4x4.hpp
@@ -1291,6 +1299,22 @@ matrix_transform.inl
 ../libs/include/glm/detail/type_vec4.hpp
 quaternion.inl
 ../libs/include/glm/gtc/quaternion.inl
+
+../libs/include/glm/gtc/quaternion.inl
+../trigonometric.hpp
+../libs/include/glm/trigonometric.hpp
+../geometric.hpp
+../libs/include/glm/geometric.hpp
+../exponential.hpp
+../libs/include/glm/exponential.hpp
+epsilon.hpp
+../libs/include/glm/gtc/epsilon.hpp
+limits
+-
+quaternion_simd.inl
+../libs/include/glm/gtc/quaternion_simd.inl
+
+../libs/include/glm/gtc/quaternion_simd.inl
 
 ../libs/include/glm/gtc/type_ptr.hpp
 ../gtc/quaternion.hpp
@@ -1747,8 +1771,6 @@ iostream
 -
 string
 -
-fstream
--
 sstream
 -
 cmath
@@ -1765,12 +1787,6 @@ libs/include/glfw3.h
 C:/Users/Arseniy/CLionProjects/MashGraph/libs/include/glfw3.h
 libs/include/SOIL.h
 C:/Users/Arseniy/CLionProjects/MashGraph/libs/include/SOIL.h
-assimp/Importer.hpp
--
-assimp/scene.h
--
-assimp/postprocess.h
--
 glm/glm.hpp
 -
 glm/gtc/matrix_transform.hpp

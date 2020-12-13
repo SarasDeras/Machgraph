@@ -1,8 +1,9 @@
 cmake_minimum_required(VERSION 3.16)
 project(MashGraph)
 
-
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -static-libstdc++ -static-libgcc")
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+
 set(SOURCE_FILES main.cpp Shader.h Camera.h Model.h)
 
 find_package(OpenGL REQUIRED)
