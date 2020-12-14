@@ -1,4 +1,3 @@
-
 #ifndef MASHGRAPH_CAMERA_H
 #define MASHGRAPH_CAMERA_H
 
