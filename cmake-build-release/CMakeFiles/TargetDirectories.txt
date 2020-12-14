@@ -1,3 +1,0 @@
-C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-release/CMakeFiles/MashGraph.dir
-C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-release/CMakeFiles/edit_cache.dir
-C:/Users/Arseniy/CLionProjects/MashGraph/cmake-build-release/CMakeFiles/rebuild_cache.dir
